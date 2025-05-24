@@ -148,7 +148,6 @@ class PhotoApp {
         if (!this.currentPhotoBlob) return;
 
         this.showLoading(true);
-        
         try {
             const formData = new FormData();
             formData.append('photo', this.currentPhotoBlob, 'photo.jpg');
@@ -158,14 +157,20 @@ class PhotoApp {
                 body: formData
             });
 
-            const result = await response.json();
+            let result;
+            try {
+                result = await response.json();
+            } catch (jsonErr) {
+                // If not valid JSON, show the raw response for debugging
+                const text = await response.text();
+                this.showNotification('Server error: ' + text, 'error');
+                throw new Error('Invalid JSON: ' + text);
+            }
 
             if (result.success) {
                 this.showNotification('Photo saved successfully!', 'success');
                 this.hidePreview();
                 this.loadPhotos();
-                
-                // Clean up object URL
                 if (this.previewImage.src) {
                     URL.revokeObjectURL(this.previewImage.src);
                 }
