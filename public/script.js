@@ -157,14 +157,13 @@ class PhotoApp {
                 body: formData
             });
 
-            let result;
+            let result, text;
             try {
-                result = await response.json();
+                text = await response.text();
+                result = JSON.parse(text);
             } catch (jsonErr) {
-                // If not valid JSON, show the raw response for debugging
-                const text = await response.text();
-                this.showNotification('Server error: ' + text, 'error');
-                throw new Error('Invalid JSON: ' + text);
+                this.showNotification('Server error: ' + (text || 'Invalid JSON'), 'error');
+                throw new Error('Invalid JSON: ' + (text || 'No response body'));
             }
 
             if (result.success) {
